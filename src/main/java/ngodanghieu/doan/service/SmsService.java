@@ -16,11 +16,11 @@ package ngodanghieu.doan.service;//package com.vinid.vinhome.service;//package v
 //public class SmsService {
 //
 //	private void sendSms( String phoneNumber, String message){
-//        String AccessKey = "AKIAVZD3RCWISLZD5VKN";
-//        String SecretKey = "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";
+//        String AccessKey = 
+//        String SecretKey =
 //
-////        String AccessKey = "AKIAJGD754THPWKUSX6A";
-////        String SecretKey = "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";
+////        String AccessKey =
+////        String SecretKey =
 //
 //        AmazonSNSClient snsClient = new AmazonSNSClient(new BasicAWSCredentials(AccessKey, SecretKey));
 //        Map<String, MessageAttributeValue> smsAttributes =
