@@ -148,8 +148,8 @@ public class UserController {
         return new ResponseEntity<ResponseData>(responseData,HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping(value = "validateOTPCode")
-    public ResponseEntity<?> validateOTPCode(@RequestParam("phone") String phone ,@RequestParam("otp")String otp){
+    @GetMapping(value = "validateOTPCode")
+    public ResponseEntity<?> validateOTPCode(@RequestParam(value = "phone", required = true)  String phone ,@RequestParam(value = "otp", required = true) String otp){
         ResponseData responseData = new ResponseData();
         try{
             if(phone.length() >=  12 && phone.length() < 8){
