@@ -149,7 +149,7 @@ public class UserController {
     }
 
     @PostMapping(value = "validateOTPCode")
-    public ResponseEntity<?> validateOTPCode(String phone ,String otp){
+    public ResponseEntity<?> validateOTPCode(@RequestParam("phone") String phone ,@RequestParam("otp")String otp){
         ResponseData responseData = new ResponseData();
         try{
             if(phone.length() >=  12 && phone.length() < 8){
@@ -173,7 +173,7 @@ public class UserController {
                 return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }else {
                 responseData.setStatus(2);
-                responseData.setMessage("ERROR_PROCESS_DATA");
+                responseData.setMessage("CODE FLASE");
                 responseData.setErrorType(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
                 return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
