@@ -21,7 +21,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(value = "register")
-    public ResponseEntity<?> register(UserRequest userRequest){
+    public ResponseEntity<?> register(@RequestBody UserRequest userRequest){
         ResponseData responseData = new ResponseData();
         try{
             if (userRequest == null) {
