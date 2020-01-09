@@ -28,19 +28,19 @@ public class UserController {
                 responseData.setStatus(7);
                 responseData.setMessage(Constant.ErrorTypeCommon.INVALID_INPUT);
                 responseData.setErrorType(Constant.ErrorTypeCommon.INVALID_INPUT);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
             if(userRequest.getUserPhone().length() >=  12 && userRequest.getUserPhone().length() < 8){
                 responseData.setStatus(7);
                 responseData.setMessage(Constant.ErrorTypeCommon.INVALID_PHONE);
-                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.BAD_REQUEST);
+                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
             }
             boolean b = userService.checkExistPhoneNumber(userRequest.getUserPhone());
             if (b) {
                 responseData.setStatus(2);
                 responseData.setMessage("Exist an phone.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
             UserResponse userResponse = userService.save(userRequest);
 
@@ -54,7 +54,7 @@ public class UserController {
                 responseData.setStatus(2);
                 responseData.setMessage("ERROR_PROCESS_DATA");
                 responseData.setErrorType(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
         }catch (Exception e){
             responseData.setStatus(2);
@@ -70,14 +70,14 @@ public class UserController {
             if (resetPasswordResquet == null){
                 responseData.setStatus(7);
                 responseData.setMessage(Constant.ErrorTypeCommon.FORM_DATA_INVALID);
-                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.BAD_REQUEST);
+                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
             }
             boolean b = userService.checkExistPhoneNumber(resetPasswordResquet.getPhone());
             if (!b) {
                 responseData.setStatus(2);
                 responseData.setMessage("No phone.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.INVALID_PHONE);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
 
             String result = userService.resetPassword(resetPasswordResquet.getPhone(),resetPasswordResquet.getOldPassword(),resetPasswordResquet.getNewPassword());
@@ -100,12 +100,12 @@ public class UserController {
                 responseData.setStatus(7);
                 responseData.setMessage(Constant.ErrorTypeCommon.INVALID_INPUT);
                 responseData.setErrorType(Constant.ErrorTypeCommon.INVALID_INPUT);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
             if(userRequest.getUserPhone().length() >=  12 && userRequest.getUserPhone().length() < 8){
                 responseData.setStatus(7);
                 responseData.setMessage(Constant.ErrorTypeCommon.INVALID_PHONE);
-                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.BAD_REQUEST);
+                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
             }
             boolean checkValidate = userService.checkUserValidateOTP(userRequest.getUserPhone());
 
@@ -114,7 +114,7 @@ public class UserController {
                 responseData.setStatus(2);
                 responseData.setMessage("PHONE NOT VALIDATE OTP.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
 
             boolean checkExistPhoneNumber = userService.checkExistPhoneNumber(userRequest.getUserPhone());
@@ -122,7 +122,7 @@ public class UserController {
                 responseData.setStatus(2);
                 responseData.setMessage("Exist an phone.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
 
             UserResponse userResponse = userService.login(userRequest);
@@ -137,7 +137,7 @@ public class UserController {
                 responseData.setStatus(2);
                 responseData.setMessage("User or pass false or user not validate opt!");
                 responseData.setErrorType(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
 
 
@@ -155,14 +155,14 @@ public class UserController {
             if(phone.length() >=  12 && phone.length() < 8){
                 responseData.setStatus(7);
                 responseData.setMessage(Constant.ErrorTypeCommon.INVALID_PHONE);
-                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.BAD_REQUEST);
+                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
             }
             boolean b = userService.checkExistPhoneNumber(phone);
             if (!b) {
                 responseData.setStatus(2);
                 responseData.setMessage("Exist an phone.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
             boolean isTrue = userService.validateOTPCode(phone,otp);
 
@@ -175,7 +175,7 @@ public class UserController {
                 responseData.setStatus(2);
                 responseData.setMessage("ERROR_PROCESS_DATA");
                 responseData.setErrorType(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
         }catch (Exception e){
             responseData.setStatus(2);
