@@ -10,11 +10,13 @@ import ngodanghieu.doan.request.UserRequest;
 import ngodanghieu.doan.response.UserResponse;
 import ngodanghieu.doan.util.Constant;
 import ngodanghieu.doan.util.Helper;
+import ngodanghieu.doan.util.JwtUltis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,6 +59,10 @@ public class UserService {
             userRole.setCreatedOn(new Date());
             userRole.setCreatedBy("danghieu");
             iUserRoleRepository.save(userRole);
+            List<String> listRole = iRoleRepository.getListByPhone(userRequest.getUserPhone());
+            String token = JwtUltis.generateToken(newUser,listRole);
+            result.setUserAuthToken(token);
+            iUserRepository.save(newUser);
             return MapEntitytoModelResponse(result);
         }
     }
@@ -81,11 +87,15 @@ public class UserService {
         }
     }
 
+    @Transactional
     public UserResponse login(UserRequest userRequest){
         if (checkExistPhoneNumber(userRequest.getUserPhone())){
             Optional<User> optionalUser= iUserRepository.findUserByPhone(userRequest.getUserPhone());
             User user = optionalUser.isPresent() ? optionalUser.get(): null;
             if (user != null && Helper.CheckPw(userRequest.getUserHash(),user.getUserHash())){
+                String token = JwtUltis.generateToken(user,iRoleRepository.getListByPhone(user.getUserPhone()));
+                user.setUserHash(token);
+                iUserRepository.save(user);
                 return MapEntitytoModelResponse(user);
             }else {
                 return null;
@@ -111,7 +121,7 @@ public class UserService {
     }
 
     private UserResponse MapEntitytoModelResponse(User user){
-        return new UserResponse(user.getUserId(),user.getUserFullName(),user.getUserPhone(),user.getUserEmail(),"");
+        return new UserResponse(user.getUserId(),user.getUserFullName(),user.getUserPhone(),user.getUserEmail(),"",user.getUserAuthToken());
     }
 
     private void sendOTP(User u, String phone) {

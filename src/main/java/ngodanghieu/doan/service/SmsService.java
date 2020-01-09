@@ -16,7 +16,7 @@ package ngodanghieu.doan.service;//package com.vinid.vinhome.service;//package v
 //public class SmsService {
 //
 //	private void sendSms( String phoneNumber, String message){
-//        String AccessKey = 
+//        String AccessKey =
 //        String SecretKey =
 //
 ////        String AccessKey =

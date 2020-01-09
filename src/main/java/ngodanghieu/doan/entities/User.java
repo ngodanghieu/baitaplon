@@ -4,9 +4,7 @@ package ngodanghieu.doan.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -40,6 +38,7 @@ public class User implements java.io.Serializable {
 	private Set<Order> orders = new HashSet<Order>(0);
 	private Set<VinPoint> vinPoints = new HashSet<VinPoint>(0);
 	private Set<UserFcm> userFcms = new HashSet<UserFcm>(0);
+
 	public User() {
 	}
 
@@ -299,5 +298,6 @@ public class User implements java.io.Serializable {
 	public void setUserFcms(Set<UserFcm> userFcms) {
 		this.userFcms = userFcms;
 	}
+
 
 }

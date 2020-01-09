@@ -1,5 +1,6 @@
 package ngodanghieu.doan.controller;
 
+import io.swagger.annotations.Api;
 import ngodanghieu.doan.response.AdressResponse;
 import ngodanghieu.doan.response.ResponseData;
 import ngodanghieu.doan.service.AdressService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Api
 @RestController
 @RequestMapping(value = "/api/adress/")
 public class AdressController {

@@ -12,6 +12,8 @@ import ngodanghieu.doan.util.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +35,8 @@ public class HomeController {
 
     @GetMapping(value = "get-all-home")
     public ResponseEntity<?> getAllHome(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userPhone = (String) auth.getPrincipal();
         ResponseData responseData = new ResponseData();
         try {
             List<HomeResponse> result =  homeService.getAllHome();
