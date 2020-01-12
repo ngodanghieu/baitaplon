@@ -14,4 +14,6 @@ import java.util.Date;
 public class OrderResponse {
     private String orderCode;
     private Date createDay;
+    private Double totalPrice;
+    private String note;
 }

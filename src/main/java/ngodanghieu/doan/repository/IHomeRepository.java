@@ -10,12 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IHomeRepository extends JpaRepository<Home,Long> {
-    @Query(nativeQuery = true, value = "SELECT * FROM home " +
-            "INNER JOIN status ON status.status_id =home.status " +
-            "INNER JOIN adress_home ON home.home_id = adress_home.home_id " +
-            "WHERE status.status_code = 'active'")
+    @Query(nativeQuery = true, value = "SELECT home.* FROM home,status,adress_home " +
+            "WHERE status.status_id =home.status " +
+            "AND home.home_id = adress_home.home_id " +
+            "AND status.status_code = 'active'")
     List<Home> getAllHome();
-
     Home findByHomeId(Long idHome);
 
     @Query(nativeQuery = true, value = "SELECT * FROM home WHERE home_id = :id")
@@ -23,7 +22,7 @@ public interface IHomeRepository extends JpaRepository<Home,Long> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM home " +
             "INNER JOIN user_home ON user_home.home_id = home.home_id " +
-            "WHERE user_home.user_id = :id")
+            "WHERE user_home.user_id = :id AND home.status <> 4")
     List<Home> getHomeByIdUser(@Param("id") Long id);
 
     @Query(nativeQuery = true,

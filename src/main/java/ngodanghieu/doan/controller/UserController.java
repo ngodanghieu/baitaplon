@@ -107,20 +107,22 @@ public class UserController {
                 responseData.setMessage(Constant.ErrorTypeCommon.INVALID_PHONE);
                 return  new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
             }
+
+
+            boolean checkExistPhoneNumber = userService.checkExistPhoneNumber(userRequest.getUserPhone());
+            if (!checkExistPhoneNumber) {
+                responseData.setStatus(3);
+                responseData.setMessage("Exist an phone.");
+                responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            }
+
             boolean checkValidate = userService.checkUserValidateOTP(userRequest.getUserPhone());
 
             if (!checkValidate) {
 
                 responseData.setStatus(2);
                 responseData.setMessage("PHONE NOT VALIDATE OTP.");
-                responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
-            }
-
-            boolean checkExistPhoneNumber = userService.checkExistPhoneNumber(userRequest.getUserPhone());
-            if (!checkExistPhoneNumber) {
-                responseData.setStatus(2);
-                responseData.setMessage("Exist an phone.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
                 return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
@@ -164,10 +166,11 @@ public class UserController {
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
                 return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
-            boolean isTrue = userService.validateOTPCode(phone,otp);
+            UserResponse userResponse = userService.validateOTPCode(phone,otp);
 
-            if(isTrue){
+            if(userResponse != null){
                 responseData.setStatus(1);
+                responseData.setContent(userResponse);
                 responseData.setMessage(Constant.ErrorTypeCommon.OK);
                 responseData.setErrorType(Constant.ErrorTypeCommon.OK);
                 return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
@@ -183,6 +186,44 @@ public class UserController {
         }
         return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
     }
+
+    @PostMapping(value = "sentAgainOtp")
+    public ResponseEntity<?> sentAgainOtp(@RequestParam(value = "phone", required = true)  String phone){
+        ResponseData responseData = new ResponseData();
+        try{
+            if(phone.length() >=  12 && phone.length() < 8){
+                responseData.setStatus(7);
+                responseData.setMessage(Constant.ErrorTypeCommon.INVALID_PHONE);
+                return  new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
+            }
+            boolean b = userService.checkExistPhoneNumber(phone);
+            if (!b) {
+                responseData.setStatus(2);
+                responseData.setMessage("Exist an phone.");
+                responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            }
+            boolean isSent = userService.senAgainOtp(phone);
+
+            if(isSent){
+                responseData.setStatus(1);
+                responseData.setContent("OK");
+                responseData.setMessage(Constant.ErrorTypeCommon.OK);
+                responseData.setErrorType(Constant.ErrorTypeCommon.OK);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            }else {
+                responseData.setStatus(2);
+                responseData.setMessage("SENT FALSE");
+                responseData.setErrorType(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            }
+        }catch (Exception e){
+            responseData.setStatus(2);
+            responseData.setMessage(e.toString());
+        }
+        return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+    }
+
 
     @Autowired
     IUserRepository userRepository;

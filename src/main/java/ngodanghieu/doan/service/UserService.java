@@ -59,10 +59,10 @@ public class UserService {
             userRole.setCreatedOn(new Date());
             userRole.setCreatedBy("danghieu");
             iUserRoleRepository.save(userRole);
-            List<String> listRole = iRoleRepository.getListByPhone(userRequest.getUserPhone());
-            String token = JwtUltis.generateToken(newUser,listRole);
-            result.setUserAuthToken(token);
-            iUserRepository.save(newUser);
+//            List<String> listRole = iRoleRepository.getListByPhone(userRequest.getUserPhone());
+//            String token = JwtUltis.generateToken(newUser,listRole);
+//            result.setUserAuthToken(token);
+//            iUserRepository.save(newUser);
             return MapEntitytoModelResponse(result);
         }
     }
@@ -94,7 +94,7 @@ public class UserService {
             User user = optionalUser.isPresent() ? optionalUser.get(): null;
             if (user != null && Helper.CheckPw(userRequest.getUserHash(),user.getUserHash())){
                 String token = JwtUltis.generateToken(user,iRoleRepository.getListByPhone(user.getUserPhone()));
-                user.setUserHash(token);
+                user.setUserAuthToken(token);
                 iUserRepository.save(user);
                 return MapEntitytoModelResponse(user);
             }else {
@@ -119,6 +119,19 @@ public class UserService {
          }
 
     }
+    @Transactional
+    public Boolean senAgainOtp(String phone){
+        Optional<User> optionalUser= iUserRepository.findUserByPhone(phone);
+        User user = optionalUser.isPresent() ? optionalUser.get(): null;
+        if (user != null){
+            sendOTP(user,phone);
+            iUserRepository.save(user);
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     private UserResponse MapEntitytoModelResponse(User user){
         return new UserResponse(user.getUserId(),user.getUserFullName(),user.getUserPhone(),user.getUserEmail(),"",user.getUserAuthToken());
@@ -134,19 +147,21 @@ public class UserService {
 
     }
 
-    public boolean validateOTPCode(String phone, String otpCode) throws Exception {
+    public UserResponse validateOTPCode(String phone, String otpCode) throws Exception {
         Optional<User> optionalUser= iUserRepository.findUserByPhone(phone);
         User user = optionalUser.isPresent() ? optionalUser.get(): null;
         if (user != null){
                 if(user.getUserOptCode().equals(otpCode) && user.getUserExpiredOtp().after(new Date())) {
                     user.setStatus(iStatusRepository.findByStatusCode("active"));
+                    String token = JwtUltis.generateToken(user,iRoleRepository.getListByPhone(user.getUserPhone()));
+                    user.setUserAuthToken(token);
                     iUserRepository.save(user);
-                    return true;
+                    return MapEntitytoModelResponse(user);
             }else {
-                return false;
+                return null;
             }
         }else {
-            return false;
+            return null;
         }
     }
 

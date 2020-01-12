@@ -3,9 +3,11 @@ package ngodanghieu.doan.service;
 import com.google.gson.Gson;
 import ngodanghieu.doan.entities.*;
 import ngodanghieu.doan.model.MessageFCMModel;
+import ngodanghieu.doan.model.OrderInfoModel;
 import ngodanghieu.doan.model.UserFCMModel;
 import ngodanghieu.doan.repository.*;
 import ngodanghieu.doan.request.OrderRequest;
+import ngodanghieu.doan.response.OrderDeatailResponse;
 import ngodanghieu.doan.response.OrderResponse;
 import ngodanghieu.doan.service.fcm.UserFCMService;
 import ngodanghieu.doan.util.RandomStringHelper;
@@ -154,6 +156,25 @@ public class OrderService {
         }
     }
 
+    public OrderDeatailResponse getOrderDetailByOrderCode(String code){
+        OrderDeatailResponse orderDeatailResponse = iOrderRepository.getDataOrderDetail(code);
+        List<OrderInfo> orderInfos = iOrderInfoRepository.getList(orderDeatailResponse.getOrderId());
+        if (orderInfos!= null && !orderInfos.isEmpty()){
+            orderInfos.forEach(x ->{
+                orderDeatailResponse.getOrderInfoModelList().add(mapEntityToModel(x));
+            });
+        }
+
+        return orderDeatailResponse;
+    }
+
+    private OrderInfoModel mapEntityToModel(OrderInfo orderInfo){
+        if (orderInfo != null)
+            return new OrderInfoModel(orderInfo.getCloseTime(),orderInfo.getOpenTime(),orderInfo.getWeekday());
+        else
+            return null;
+    }
+
     private OrderInfo mapModelOrderInfo(OrderRequest orderRequest,Home home, Order order){
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrder(order);
@@ -171,6 +192,7 @@ public class OrderService {
         resuslt.setHome(homem);
         resuslt.setOrderCode(code.toUpperCase());
         resuslt.setUser(user);
+        resuslt.setNote(orderRequest.getNote());
         resuslt.setOrderDate(new Date());
         resuslt.setTotalPrice(orderRequest.getTotalPrice());
         resuslt.setTaxTotal(orderRequest.getTaxTotal());
@@ -183,6 +205,6 @@ public class OrderService {
     }
 
     private OrderResponse mapOrderEntitiesToModelOrderResponse(Order order){
-        return new OrderResponse(order.getOrderCode(),order.getOrderDate());
+        return new OrderResponse(order.getOrderCode(),order.getOrderDate(),order.getTotalPrice(),order.getNote());
     }
 }

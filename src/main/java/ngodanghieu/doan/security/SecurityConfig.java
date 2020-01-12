@@ -66,9 +66,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/user/register").permitAll()
                 .antMatchers("/api/user/validateOTPCode").permitAll()
+                .antMatchers("/api/order/**").permitAll()
+                .antMatchers("/api/home/**").permitAll()
                 .antMatchers("/api/user/login").permitAll()
                 .antMatchers("/api/home/get-all-home").permitAll()
-                .antMatchers("/api/home/get-all-by-user","/api/home/create-home","/api/home/delete-home").hasRole("ownener")
+//                .antMatchers("/api/home/get-all-by-user","/api/home/create-home","/api/home/delete-home").hasRole("ownener")
+                .antMatchers("/api/home/get-all-by-user","/api/home/create-home","/api/home/delete-home").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
@@ -86,7 +89,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-resources/**",
                 "/configuration/security",
                 "/swagger-ui.html",
-                "/webjars/**");
+                "/webjars/**","/api/home/upload");
     }
 
 

@@ -17,4 +17,5 @@ public class OrderRequest {
     private String open;
     private String close;
     private String weekday;
+    private String note;
 }

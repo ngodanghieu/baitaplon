@@ -1,6 +1,7 @@
 package ngodanghieu.doan.controller;
 
 import ngodanghieu.doan.request.OrderRequest;
+import ngodanghieu.doan.response.OrderDeatailResponse;
 import ngodanghieu.doan.response.OrderResponse;
 import ngodanghieu.doan.response.ResponseData;
 import ngodanghieu.doan.service.HomeService;
@@ -27,7 +28,7 @@ public class OrderController {
     private UserService userService;
 
     @PostMapping(value = "create-Order")
-    public ResponseEntity<?> createOrder(OrderRequest orderRequest){
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest){
         ResponseData responseData = new ResponseData();
         try {
             if (orderRequest == null){
@@ -243,6 +244,44 @@ public class OrderController {
             }
 
             List<OrderResponse> data = orderService.getListOrderHistoryOwnner(idUser);
+
+            if (data != null){
+                responseData.setStatus(1);
+                responseData.setContent(data);
+                responseData.setMessage(Constant.ErrorTypeCommon.OK);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            }else {
+                responseData.setStatus(3);
+                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
+                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            }
+
+        }catch (Exception e){
+            responseData.setMessage(e.toString());
+            responseData.setStatus(2);
+        }
+        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping(value = "get-all-order-detail-by-ordercode")
+    public ResponseEntity<?> getDataOrderDetailByOrderCode(String orderCode){
+        ResponseData responseData = new ResponseData();
+        try {
+            if (orderCode == null){
+                responseData.setStatus(3);
+                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            }
+
+            boolean ischeckOrder = orderService.checkOrderByOrderCode(orderCode);
+
+            if (!ischeckOrder){
+                responseData.setStatus(3);
+                responseData.setMessage("HAVE NOT ORDER");
+                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            }
+
+            OrderDeatailResponse data = orderService.getOrderDetailByOrderCode(orderCode);
 
             if (data != null){
                 responseData.setStatus(1);

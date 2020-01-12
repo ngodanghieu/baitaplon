@@ -168,7 +168,8 @@ public class HomeService {
     private Home mappingModelToEntitiHome(Home home, HomeRequest homeRequest,MultipartFile fileData) throws Exception {
         home.setContent(homeRequest.getContent());
         home.setPrice(homeRequest.getPrice());
-        String imageUrl = Helper.doUpload(null,fileData);
+//        String imageUrl = Helper.doUpload(null,fileData);
+        String imageUrl = "asd";
         home.setImageUrl("https://ngodanghieu.herokuapp.com/"+imageUrl);
         return home;
     }

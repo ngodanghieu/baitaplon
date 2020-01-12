@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +19,7 @@ public class FirebaseController {
     private UserFCMService userFCMService;
 
     @PostMapping(value = "create-userFcm")
-    public ResponseEntity<?> register(UserFCMModel userFCMModel){
+    public ResponseEntity<?> register(@RequestBody  UserFCMModel userFCMModel){
         ResponseData responseData = new ResponseData();
         try{
             if (userFCMModel == null) {
