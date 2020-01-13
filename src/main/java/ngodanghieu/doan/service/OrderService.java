@@ -106,7 +106,7 @@ public class OrderService {
             if (order != null){
                 OrderInfo orderInfo = iOrderInfoRepository.findByOrderId(order.getOrderId());
                 iOrderInfoRepository.delete(orderInfo);
-                iOrderRepository.delete(order);
+                 iOrderRepository.delete(order);
                 return true;
             }else {
                 return false;
@@ -131,16 +131,17 @@ public class OrderService {
     }
 
     public List<OrderResponse> getListOrderWaitingProcess(Long userId){
-        List<Order> list = iOrderRepository.findAllByStatus(iStatusRepository.findByStatusCode("neworder"));
-        List<OrderResponse> result = new ArrayList<>();
-        if (list != null && !list.isEmpty()){
-            list.forEach(x->{
-                result.add(mapOrderEntitiesToModelOrderResponse(x));
-            });
-            return result;
-        }else {
-            return null;
-        }
+//        List<Order> list = iOrderRepository.findAllByStatus(iStatusRepository.findByStatusCode("neworder"));
+//        List<OrderResponse> result = new ArrayList<>();
+//        if (list != null && !list.isEmpty()){
+//            list.forEach(x->{
+//                result.add(mapOrderEntitiesToModelOrderResponse(x));
+//            });
+//            return result;
+//        }else {
+//            return null;
+//        }
+        return iOrderRepository.getAllDataOrderNewByOwnner(userId);
     }
 
     public List<OrderResponse> getListOrderHistoryOwnner(Long idUser){
@@ -205,6 +206,7 @@ public class OrderService {
     }
 
     private OrderResponse mapOrderEntitiesToModelOrderResponse(Order order){
-        return new OrderResponse(order.getOrderCode(),order.getOrderDate(),order.getTotalPrice(),order.getNote());
+
+        return new OrderResponse("",order.getOrderCode(),order.getOrderDate().toString(),order.getStatus().getStatusId() == 6 ? 0:1);
     }
 }

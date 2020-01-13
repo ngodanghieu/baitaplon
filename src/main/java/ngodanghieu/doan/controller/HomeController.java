@@ -112,7 +112,7 @@ public class HomeController {
             }else
             {
                 responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
+                responseData.setMessage(Constant.ErrorTypeCommon.OK);
             }
 
 

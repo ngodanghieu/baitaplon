@@ -32,7 +32,7 @@ public class DistrictController {
             }else {
                 responseData.setStatus(2);
                 responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
             }
         }catch (Exception e){
             responseData.setStatus(2);

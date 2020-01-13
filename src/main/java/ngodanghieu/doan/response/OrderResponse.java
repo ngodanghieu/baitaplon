@@ -12,8 +12,9 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderResponse {
+    private String name;
     private String orderCode;
-    private Date createDay;
-    private Double totalPrice;
-    private String note;
+    private String createDay;
+    private Integer statusOrder;
+
 }

@@ -26,4 +26,7 @@ public interface IOrderRepository extends JpaRepository<Order,Long> {
 
     @Query(nativeQuery = true, name = "getOrderdetal")
     OrderDeatailResponse getDataOrderDetail(@Param("ordercode") String orderCode);
+
+    @Query(nativeQuery = true , name = "getOrdeNew")
+    List<OrderResponse> getAllDataOrderNewByOwnner(@Param("iduser") Long idUSer);
 }

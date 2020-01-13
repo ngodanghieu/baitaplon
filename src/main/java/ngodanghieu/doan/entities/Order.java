@@ -29,6 +29,17 @@ import static javax.persistence.GenerationType.IDENTITY;
 								@ColumnResult(name = "datecreate", type = String.class)
 						}
 				)
+		),
+		@SqlResultSetMapping(
+				name = "OrderNew",
+				classes = @ConstructorResult(
+						targetClass = OrderResponse.class,
+						columns = {
+								@ColumnResult(name = "namehome", type = String.class),
+								@ColumnResult(name = "ordercode", type = String.class),
+								@ColumnResult(name = "dateorder", type = String.class)
+						}
+				)
 		)
 })
 @NamedNativeQuery(
@@ -41,6 +52,19 @@ import static javax.persistence.GenerationType.IDENTITY;
 				"AND home.home_id = adress_home.home_id \n" +
 				"AND building.building_id = adress_home.building_id " +
 				"AND `order`.order_code = :ordercode")
+
+@NamedNativeQuery(
+		name = "getOrdeNew",
+		resultSetMapping = "OrderNew",
+		query = "SELECT `order`.order_code as ordercode, DATE_FORMAT(`order`.order_date,'%d/%m/%Y') AS dateorder ,CONCAT(adress_home.name_home, ' - ',building.name) as namehome " +
+				"FROM `order`,user,home,adress_home,building, user_home " +
+				"WHERE `order`.home_id = home.home_id " +
+				"AND user_home.home_id = home.home_id " +
+				"AND user_home.user_id = user.user_id " +
+				"AND home.home_id = adress_home.home_id " +
+				"AND building.building_id = adress_home.building_id " +
+				"AND `order`.status = 6 " +
+				"AND user.user_id = :iduser")
 
 
 @Entity

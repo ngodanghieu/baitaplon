@@ -118,7 +118,7 @@ public class OrderController {
             if (orderCode == null){
                 responseData.setStatus(3);
                 responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
             }
 
             boolean isCheckOrder = orderService.checkOrderByOrderCode(orderCode);
@@ -126,7 +126,7 @@ public class OrderController {
             if (!isCheckOrder){
                 responseData.setStatus(3);
                 responseData.setMessage("HAVE NOT ORDER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
             }
 
             Boolean save = orderService.deleteOrder(orderCode);
@@ -139,7 +139,7 @@ public class OrderController {
             }else {
                 responseData.setStatus(3);
                 responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
             }
 
         }catch (Exception e){
@@ -194,7 +194,7 @@ public class OrderController {
             if (idUser == null){
                 responseData.setStatus(3);
                 responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
             }
 
             boolean isCheckUser = userService.checkExistUserById(idUser);
@@ -202,7 +202,7 @@ public class OrderController {
             if (!isCheckUser){
                 responseData.setStatus(3);
                 responseData.setMessage("HAVE NOT USER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
             }
 
             List<OrderResponse> data = orderService.getListOrderWaitingProcess(idUser);
@@ -215,7 +215,7 @@ public class OrderController {
             }else {
                 responseData.setStatus(3);
                 responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseData, HttpStatus.OK);
             }
 
         }catch (Exception e){
