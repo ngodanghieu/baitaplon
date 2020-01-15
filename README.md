@@ -41,7 +41,7 @@ Step 4: Chủ nhà xác nhận order và chủ động liên lạc với ngườ
 ## Cấu trúc Database
 Cấu trúc các bảng trong database của project
 
-<img align="right" src="https://i.imgur.com/qkEdtYk.jpg">
+<img align="right" src="https://i.imgur.com/gzzv5oZ.png">
 
 ## Công cụ
 Cấu trúc và các công cụ được sử dụng của project:
