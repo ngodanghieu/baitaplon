@@ -1,7 +1,9 @@
 package ngodanghieu.doan.service;
 
+import com.google.gson.Gson;
 import ngodanghieu.doan.entities.*;
 import ngodanghieu.doan.model.HomeWorkTimeModel;
+import ngodanghieu.doan.model.ResponImage;
 import ngodanghieu.doan.repository.*;
 import ngodanghieu.doan.request.HomeRequest;
 import ngodanghieu.doan.request.SearchRequset;
@@ -9,10 +11,19 @@ import ngodanghieu.doan.response.DataResultResponse;
 import ngodanghieu.doan.response.HomeResponse;
 import ngodanghieu.doan.util.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +50,9 @@ public class HomeService {
     @Autowired
     private IHomeWorkTimeRepository iHomeWorkTimeRepository;
 
+    @Autowired
+    private IOrderRepository iOrderRepository;
+
     public Boolean checkHomeExit(Long id){
         Optional<Home> optionalHome = iHomeRepository.findById(id);
         Home home = optionalHome.isPresent() ? optionalHome.get(): null;
@@ -50,12 +64,32 @@ public class HomeService {
         List<HomeResponse> result = new LinkedList<>();
         if (homeResponseList != null && !homeResponseList.isEmpty()){
             homeResponseList.forEach(x ->{
-                result.add(mappingEntitiToResponse(x));
+                if (checkHome(x.getHomeId())){
+                    result.add(mappingEntitiToResponse(x));
+                }
+
             });
             return result;
         }else {
             return null;
         }
+    }
+
+    private Boolean checkHome(Long idHome){
+        List<Order> order =  iOrderRepository.getByhome(idHome);
+        boolean id = true;
+        if (order != null && !order.isEmpty()){
+            for (Order order1 : order){
+                if (order1.getStatus().getStatusId() != 7 && order1.getStatus().getStatusId() != 6){
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        }else {
+            return true;
+        }
+        return false;
     }
 
     public HomeResponse getHomeById(Long id){
@@ -87,7 +121,7 @@ public class HomeService {
 
     @Transactional
     public Boolean createHome(HomeRequest homeRequest, MultipartFile fileData) throws Exception {
-        Home home = iHomeRepository.findByHomeId(homeRequest.getId());
+        Home home = iHomeRepository.findByHomeId(homeRequest.getId() == null ? 0 : homeRequest.getId());
         if (home != null){
              Home save =  mappingModelToEntitiHome(home,homeRequest,fileData);
              save.setStatus(iStatusRepository.findByStatusCode("active"));
@@ -150,13 +184,13 @@ public class HomeService {
         StringBuilder acreageString = new StringBuilder();
         acreageString.append(acreage.getTotalArea())
                 .append("(").append(acreage.getWidth()).append("x").append(acreage.getHeight()).append(")");
-        return new HomeResponse(home.getHomeId(),title,home.getContent(),home.getImageUrl(),acreageString.toString(),home.getPrice(),home.getCreatedOn(),home.getCreatedBy());
+        return new HomeResponse(home.getHomeId(),title,home.getContent(),home.getImageUrl(),acreageString.toString(),home.getPrice(),home.getCreatedOn(),home.getCreatedBy(),"");
     }
 
     private String getTitleHome(Long id){
         AdressHome adressHome = adressHomeService.getiAdressHomeByIdHome(id);
         StringBuilder title = new StringBuilder();
-        title.append(adressHome.getNameHome()).append(" + ").append(adressHome.getBuilding().getName());
+        title.append(adressHome.getNameHome()).append(" - ").append(adressHome.getBuilding().getName());
         return title.toString();
     }
 
@@ -168,9 +202,8 @@ public class HomeService {
     private Home mappingModelToEntitiHome(Home home, HomeRequest homeRequest,MultipartFile fileData) throws Exception {
         home.setContent(homeRequest.getContent());
         home.setPrice(homeRequest.getPrice());
-//        String imageUrl = Helper.doUpload(null,fileData);
-        String imageUrl = "asd";
-        home.setImageUrl("https://ngodanghieu.herokuapp.com/"+imageUrl);
+        String imageUrl = getImgurContent(fileData);
+        home.setImageUrl(imageUrl);
         return home;
     }
 
@@ -185,5 +218,28 @@ public class HomeService {
         homeWorktime.setModifiedOn(new Date());
         homeWorktime.setModifiedBy("dang hieu");
         return homeWorktime;
+    }
+
+    public  String getImgurContent(MultipartFile urlImage) throws Exception {
+
+        File convFile = new File( urlImage.getOriginalFilename() );
+        FileOutputStream fos = new FileOutputStream( convFile );
+        fos.write( urlImage.getBytes() );
+        fos.close();
+        // set header
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.add("Authorization", "Client-ID ad637b41f54375b");
+        // set body
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("image", new FileSystemResource(convFile));
+        // add header & body to request
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        String serverUrl = "https://api.imgur.com/3/upload";
+        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<String> response = restTemplate.postForEntity(serverUrl, requestEntity, String.class);
+        String  response2 = restTemplate.postForObject(serverUrl, requestEntity, String.class);
+        ResponImage image = new Gson().fromJson(response2,ResponImage.class);
+        return image.getData().getLink();
     }
 }

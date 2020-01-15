@@ -29,4 +29,7 @@ public interface IOrderRepository extends JpaRepository<Order,Long> {
 
     @Query(nativeQuery = true , name = "getOrdeNew")
     List<OrderResponse> getAllDataOrderNewByOwnner(@Param("iduser") Long idUSer);
+
+    @Query(nativeQuery = true,value = "SELECT * FROM `order` WHERE `order`.home_id = :homeid")
+    List<Order> getByhome(@Param("homeid") Long idHome);
 }

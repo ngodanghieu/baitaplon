@@ -18,4 +18,5 @@ public class HomeResponse {
     private double price;
     private Date createdOn;
     private String createdBy;
+    private String address;
 }
