@@ -27,7 +27,7 @@ Các công việc khác như làm documentation, tạo mockup data, viết test,
 ## Tính Năng
 Mô tả họat động ứng dụng
 
-Note:Chủ nhà được đăng ký sẵn tài khoản 
+Note:Chủ nhà được đăng ký sẵn tài khoản để quản lý nhà 
 
 Step 1:Người dùng đăng ký tài khoản và xác nhận tài khoản để đăng nhập ứng dụng
 
