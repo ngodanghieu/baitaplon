@@ -5,12 +5,7 @@ import java.util.Map;
 
 public class Constant {
     public static final int EXPIRATION = 60 * 30;
-    public static final String CASH_EN = "Cash";
-    public static final String VISA_EN = "Visa";
-    public static final String PAYPAL_EN = "Paypal";
-    public static final String CREDIT_DEBIT_ON_DELIVERY_EN = "Credit/Debit on delivery";
-    public static final String PAYPAL_ES = "Paypal";
-    public static final String VISA_ES = "Visa";
+
 
     public enum NotificationParameter {
         SOUND("default"),
@@ -245,7 +240,6 @@ public class Constant {
     public static class Notification {
         // new order to user
         public static String NEW_ORDER_TO_USER_TITLE_EN = "New order";
-        public static String NEW_ORDER_TO_USER_CONTENT_EN = "Your new order %s has been informed to VinHome";
 
         // new order to owner
         public static String NEW_ORDER_TO_OWNER_TITLE_EN = "You have a new Order";
