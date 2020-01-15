@@ -51,7 +51,7 @@ Cấu trúc và các công cụ được sử dụng của project:
 
   - IDE : Inteliji
 - Testing: Postman: https://www.getpostman.com/
-- FrontEnd:
+- FrontEnd: Android
 - Api documentation: https://ngodanghieu.herokuapp.com/swagger-ui.html
 
 
