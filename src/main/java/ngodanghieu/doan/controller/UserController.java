@@ -121,7 +121,7 @@ public class UserController {
 
             if (!checkValidate) {
 
-                responseData.setStatus(2);
+                responseData.setStatus(4);
                 responseData.setMessage("PHONE NOT VALIDATE OTP.");
                 responseData.setErrorType(Constant.ErrorTypeCommon.PHONE_EXISTS);
                 return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
