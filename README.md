@@ -19,13 +19,13 @@ Server API của project mô phỏng mô hình cho thuê phòng
 
 ## Thành viên
 Thành viên của project bao gồm:
-- Dương thị THùy: Phụ trách FrontEnd,
-- Ngô Đăng Hiéu: Phụ trách BackEnd, bao gồm thiết kế database, thiết kế các REST API để liên kết database với bên FrontEnd.
+- Dương thị Thùy: Phụ trách FrontEnd,
+- Ngô Đăng Hiếu: Phụ trách BackEnd, bao gồm thiết kế database, thiết kế các REST API để liên kết database với bên FrontEnd.
 
 Các công việc khác như làm documentation, tạo mockup data, viết test, làm presentation sẽ được thực hiện đồng thời từ cả hai phía.
 
 ## Tính Năng
-Mô hoat động ứng dụng
+Mô tả họat động ứng dụng
 
 Note:Chủ nhà được đăng ký sẵn tài khoản 
 
