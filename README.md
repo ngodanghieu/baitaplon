@@ -31,9 +31,11 @@ Note:Chủ nhà được đăng ký sẵn tài khoản để quản lý nhà
 
 Step 1:Người dùng đăng ký tài khoản và xác nhận tài khoản để đăng nhập ứng dụng
 
-Step 2: Người dùng chọn phòng và order phòng
+Step 2: NGười dùng tìm kiếm phòng
 
-Step 3: Chủ nhà xác nhận order và chủ động liên lạc với người order
+Step 3: Người dùng chọn phòng và order phòng
+
+Step 4: Chủ nhà xác nhận order và chủ động liên lạc với người order
 
 
 ## Cấu trúc Database
