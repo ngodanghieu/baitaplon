@@ -54,7 +54,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 				"AND `order`.order_code = :ordercode")
 
 @NamedNativeQuery(
-		name = "getOrdeNew",
+		name = "getOrderNew",
 		resultSetMapping = "OrderNew",
 		query = "SELECT `order`.order_code as ordercode, DATE_FORMAT(`order`.order_date,'%d/%m/%Y') AS dateorder ,CONCAT(adress_home.name_home, ' - ',building.name) as namehome " +
 				"FROM `order`,user,home,adress_home,building, user_home " +

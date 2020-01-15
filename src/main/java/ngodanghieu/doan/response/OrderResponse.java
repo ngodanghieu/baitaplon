@@ -17,4 +17,9 @@ public class OrderResponse {
     private String createDay;
     private Integer statusOrder;
 
+    public OrderResponse(String name, String orderCode, String createDay) {
+        this.name = name;
+        this.orderCode = orderCode;
+        this.createDay = createDay;
+    }
 }
