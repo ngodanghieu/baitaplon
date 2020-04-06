@@ -134,7 +134,7 @@ public class HomeController {
     }
 
     @PostMapping(value = "create-home")
-    public ResponseEntity<?> create(@RequestBody HomeRequest homeRequest, MultipartFile file){
+    public ResponseEntity<?> create(@RequestBody HomeRequest homeRequest, MultipartFile[] file){
         ResponseData responseData = new ResponseData();
         try{
             if (homeRequest == null) {

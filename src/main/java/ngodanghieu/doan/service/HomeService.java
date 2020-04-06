@@ -9,12 +9,12 @@ import ngodanghieu.doan.request.HomeRequest;
 import ngodanghieu.doan.request.SearchRequset;
 import ngodanghieu.doan.response.DataResultResponse;
 import ngodanghieu.doan.response.HomeResponse;
-import ngodanghieu.doan.util.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -24,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,6 +50,9 @@ public class HomeService {
     @Autowired
     private IOrderRepository iOrderRepository;
 
+    @Autowired
+    private IMedia media;
+
     public Boolean checkHomeExit(Long id){
         Optional<Home> optionalHome = iHomeRepository.findById(id);
         Home home = optionalHome.isPresent() ? optionalHome.get(): null;
@@ -65,7 +65,7 @@ public class HomeService {
         if (homeResponseList != null && !homeResponseList.isEmpty()){
             homeResponseList.forEach(x ->{
                 if (checkHome(x.getHomeId())){
-                    result.add(mappingEntitiToResponse(x));
+                    result.add(mappingEntityToResponse(x));
                 }
 
             });
@@ -96,7 +96,7 @@ public class HomeService {
         Optional<Home> optionalHome = iHomeRepository.findById(id);
         Home home = optionalHome.isPresent() ? optionalHome.get(): null;
         if (home != null ){
-            return mappingEntitiToResponse(home);
+            return mappingEntityToResponse(home);
         }else {
             return null;
         }
@@ -111,7 +111,7 @@ public class HomeService {
         List<HomeResponse> result = new LinkedList<>();
         if (homeResponseList != null && !homeResponseList.isEmpty()){
             homeResponseList.forEach(x ->{
-                result.add(mappingEntitiToResponse(x));
+                result.add(mappingEntityToResponse(x));
             });
             return result;
         }else {
@@ -120,10 +120,10 @@ public class HomeService {
     }
 
     @Transactional
-    public Boolean createHome(HomeRequest homeRequest, MultipartFile fileData) throws Exception {
+    public Boolean createHome(HomeRequest homeRequest, MultipartFile[] fileData) throws Exception {
         Home home = iHomeRepository.findByHomeId(homeRequest.getId() == null ? 0 : homeRequest.getId());
         if (home != null){
-             Home save =  mappingModelToEntitiHome(home,homeRequest,fileData);
+             Home save =  mappingModelToEntityHome(home,homeRequest,fileData);
              save.setStatus(iStatusRepository.findByStatusCode("active"));
              Home home1 = iHomeRepository.save(save);
              if (homeRequest.getHomeWorkTimeModels() != null && !homeRequest.getHomeWorkTimeModels().isEmpty()){
@@ -150,8 +150,6 @@ public class HomeService {
         }
     }
 
-
-
     public  List<DataResultResponse> getHomeByIdUser(Long idUser){
         List<Home> homeResponseList = iHomeRepository.getHomeByIdUser(idUser);
         List<DataResultResponse> result = new LinkedList<>();
@@ -160,9 +158,9 @@ public class HomeService {
                 AcreageHome acreageHome = iAcreageHomeRepository.getByIdHome(x.getHomeId());
                 List<String> listPrice = null;
                 if (acreageHome != null){
-                    listPrice = removeDulicates(iHomeRepository.getAllPrice(acreageHome.getAcreage().getAcreageId()));
+                    listPrice = removeDuplicates(iHomeRepository.getAllPrice(acreageHome.getAcreage().getAcreageId()));
                 }
-                result.add(mapEntitiToDataResultResponse(x,listPrice == null ? null : listPrice));
+                result.add(mapEntityToDataResultResponse(x,listPrice == null ? null : listPrice));
             });
             return result;
         }else {
@@ -171,14 +169,14 @@ public class HomeService {
 
     }
 
-    private List<String> removeDulicates(List<String> list){
+    private List<String> removeDuplicates(List<String> list){
         List<String> listWithoutDuplicates = list.stream()
                 .distinct()
                 .collect(Collectors.toList());
         return listWithoutDuplicates;
     }
 
-    private HomeResponse mappingEntitiToResponse(Home home){
+    private HomeResponse mappingEntityToResponse(Home home){
         String title = getTitleHome(home.getHomeId());
         Acreage acreage = iAcreage.getByIdHome(home.getHomeId());
         StringBuilder acreageString = new StringBuilder();
@@ -194,17 +192,34 @@ public class HomeService {
         return title.toString();
     }
 
-    private DataResultResponse mapEntitiToDataResultResponse(Home home,  List<String> priceList){
+    private DataResultResponse mapEntityToDataResultResponse(Home home, List<String> priceList){
         String title = getTitleHome(home.getHomeId());
         return new DataResultResponse(home.getHomeId(),title,priceList);
     }
 
-    private Home mappingModelToEntitiHome(Home home, HomeRequest homeRequest,MultipartFile fileData) throws Exception {
+    private Home mappingModelToEntityHome(Home home, HomeRequest homeRequest, MultipartFile[] fileData) throws Exception {
         home.setContent(homeRequest.getContent());
         home.setPrice(homeRequest.getPrice());
-        String imageUrl = getImgurContent(fileData);
+        String imageUrl = getImgUrlContent(fileData[0]);
         home.setImageUrl(imageUrl);
+        saveMedia(fileData,home);
         return home;
+    }
+
+    @Async("threadCallService")
+    void saveMedia(MultipartFile[] fileData,Home home) throws Exception {
+        List<Media> list = new ArrayList<>();
+        if (fileData != null && fileData.length > 1){
+            for (MultipartFile multipartFile : fileData){
+                Media media = new Media();
+                media.setHomeId(home.getHomeId());
+                media.setType("IMAGE");
+//                media.setUserId();
+                media.setUrl(getImgUrlContent(multipartFile));
+                list.add(media);
+            }
+        }
+        media.saveAll(list);
     }
 
     private HomeWorktime mapModelToEntitiesHomeWorkTime(HomeWorkTimeModel homeWorkTimeModel, Home home){
@@ -219,11 +234,11 @@ public class HomeService {
         homeWorktime.setModifiedBy("dang hieu");
         return homeWorktime;
     }
+//    @Async
+    public  String getImgUrlContent(MultipartFile urlImage) throws Exception {
 
-    public  String getImgurContent(MultipartFile urlImage) throws Exception {
-
-        File convFile = new File( urlImage.getOriginalFilename() );
-        FileOutputStream fos = new FileOutputStream( convFile );
+        File convertFile = new File( urlImage.getOriginalFilename() );
+        FileOutputStream fos = new FileOutputStream( convertFile );
         fos.write( urlImage.getBytes() );
         fos.close();
         // set header
@@ -232,7 +247,7 @@ public class HomeService {
         headers.add("Authorization", "Client-ID ad637b41f54375b");
         // set body
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", new FileSystemResource(convFile));
+        body.add("image", new FileSystemResource(convertFile));
         // add header & body to request
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String serverUrl = "https://api.imgur.com/3/upload";

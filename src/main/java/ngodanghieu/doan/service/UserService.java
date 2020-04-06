@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -63,7 +62,7 @@ public class UserService {
 //            String token = JwtUltis.generateToken(newUser,listRole);
 //            result.setUserAuthToken(token);
 //            iUserRepository.save(newUser);
-            return MapEntitytoModelResponse(result);
+            return mapEntityToModelResponse(result);
         }
     }
 
@@ -96,7 +95,7 @@ public class UserService {
                 String token = JwtUltis.generateToken(user,iRoleRepository.getListByPhone(user.getUserPhone()));
                 user.setUserAuthToken(token);
                 iUserRepository.save(user);
-                return MapEntitytoModelResponse(user);
+                return mapEntityToModelResponse(user);
             }else {
                 return null;
             }
@@ -133,7 +132,7 @@ public class UserService {
         }
     }
 
-    private UserResponse MapEntitytoModelResponse(User user){
+    private UserResponse mapEntityToModelResponse(User user){
         return new UserResponse(user.getUserId(),user.getUserFullName(),user.getUserPhone(),user.getUserEmail(),"",user.getUserAuthToken());
     }
 
@@ -156,7 +155,7 @@ public class UserService {
                     String token = JwtUltis.generateToken(user,iRoleRepository.getListByPhone(user.getUserPhone()));
                     user.setUserAuthToken(token);
                     iUserRepository.save(user);
-                    return MapEntitytoModelResponse(user);
+                    return mapEntityToModelResponse(user);
             }else {
                 return null;
             }
