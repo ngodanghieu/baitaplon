@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2020 at 01:46 PM
+-- Generation Time: Jan 12, 2020 at 03:11 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.1.33
 
@@ -270,20 +270,6 @@ CREATE TABLE `home_worktime` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `media`
---
-
-CREATE TABLE `media` (
-  `media_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `home_id` int(11) NOT NULL,
-  `url` int(11) NOT NULL,
-  `type` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `order`
 --
 
@@ -380,18 +366,6 @@ CREATE TABLE `payment_provider` (
 
 INSERT INTO `payment_provider` (`payment_provider_id`, `name`, `code`, `created_on`, `created_by`, `modified_on`, `modified_by`, `status`) VALUES
 (1, '1', '1', '2019-12-24', '1', '2019-12-10', '1', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `point`
---
-
-CREATE TABLE `point` (
-  `vin_point_id` bigint(20) NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  `point` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -572,6 +546,18 @@ INSERT INTO `user_role` (`user_role_id`, `user_id`, `role_id`, `created_on`, `cr
 (50, 69, 2, '2020-01-10 22:54:06', 'danghieu'),
 (51, 70, 2, '2020-01-11 22:03:50', 'danghieu');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vin_point`
+--
+
+CREATE TABLE `vin_point` (
+  `vin_point_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `point` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
 -- Indexes for dumped tables
 --
@@ -687,13 +673,6 @@ ALTER TABLE `payment_provider`
   ADD KEY `payment1` (`status`);
 
 --
--- Indexes for table `point`
---
-ALTER TABLE `point`
-  ADD PRIMARY KEY (`vin_point_id`),
-  ADD KEY `vinpoint1` (`user_id`);
-
---
 -- Indexes for table `role`
 --
 ALTER TABLE `role`
@@ -736,6 +715,13 @@ ALTER TABLE `user_role`
   ADD PRIMARY KEY (`user_role_id`),
   ADD KEY `userrole1` (`role_id`),
   ADD KEY `userrole2` (`user_id`);
+
+--
+-- Indexes for table `vin_point`
+--
+ALTER TABLE `vin_point`
+  ADD PRIMARY KEY (`vin_point_id`),
+  ADD KEY `vinpoint1` (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -832,12 +818,6 @@ ALTER TABLE `payment_provider`
   MODIFY `payment_provider_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `point`
---
-ALTER TABLE `point`
-  MODIFY `vin_point_id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
@@ -872,6 +852,12 @@ ALTER TABLE `user_home`
 --
 ALTER TABLE `user_role`
   MODIFY `user_role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+
+--
+-- AUTO_INCREMENT for table `vin_point`
+--
+ALTER TABLE `vin_point`
+  MODIFY `vin_point_id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -963,12 +949,6 @@ ALTER TABLE `payment_provider`
   ADD CONSTRAINT `payment1` FOREIGN KEY (`status`) REFERENCES `status` (`status_id`);
 
 --
--- Constraints for table `point`
---
-ALTER TABLE `point`
-  ADD CONSTRAINT `vinpoint1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
-
---
 -- Constraints for table `role`
 --
 ALTER TABLE `role`
@@ -1000,6 +980,12 @@ ALTER TABLE `user_home`
 ALTER TABLE `user_role`
   ADD CONSTRAINT `userrole1` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`),
   ADD CONSTRAINT `userrole2` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+--
+-- Constraints for table `vin_point`
+--
+ALTER TABLE `vin_point`
+  ADD CONSTRAINT `vinpoint1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
