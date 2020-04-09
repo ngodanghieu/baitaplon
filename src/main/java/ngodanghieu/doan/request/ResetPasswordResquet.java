@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResetPasswordResquet {
-    private String Phone;
+    private String phone;
     private String oldPassword;
     private String newPassword;
 }

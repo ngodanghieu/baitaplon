@@ -13,11 +13,13 @@ import ngodanghieu.doan.request.HomeRequest;
 import ngodanghieu.doan.request.SearchRequset;
 import ngodanghieu.doan.response.DataResultResponse;
 import ngodanghieu.doan.response.HomeResponse;
+import ngodanghieu.doan.response.MyResponse;
 import ngodanghieu.doan.response.ResponseData;
 import ngodanghieu.doan.service.HomeService;
 import ngodanghieu.doan.service.HomeWorkTimeService;
 import ngodanghieu.doan.util.Constant;
 import ngodanghieu.doan.util.Helper;
+import ngodanghieu.doan.util.ResponseUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
@@ -29,6 +31,7 @@ import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -57,145 +60,116 @@ public class HomeController {
     private HomeService homeService;
 
     @GetMapping(value = "get-all-home")
-    public ResponseEntity<?> getAllHome(){
+    public ResponseEntity<MyResponse> getAllHome() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userPhone = (String) auth.getPrincipal();
-        ResponseData responseData = new ResponseData();
+        MyResponse responseData = new MyResponse();
         try {
-            List<HomeResponse> result =  homeService.getAllHome();
-            if (result != null){
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                responseData.setContent(result);
-                responseData.setStatus(1);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
-            }else
-            {
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
+            List<HomeResponse> result = homeService.getAllHome();
+            if (!CollectionUtils.isEmpty(result)) {
+                responseData.setData(result);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
-
-
-        }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setErrorType(e.toString());
-            responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "get-search")
-    public ResponseEntity<?> getDataSearch(SearchRequset searchRequset){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getDataSearch(SearchRequset searchRequset) {
+        MyResponse responseData = new MyResponse();
         try {
-            List<HomeResponse> result =  homeService.getDataSearch(searchRequset);
-            if (result != null){
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                responseData.setContent(result);
-                responseData.setStatus(1);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
-            }else {
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
+            List<HomeResponse> result = homeService.getDataSearch(searchRequset);
+            if (result != null) {
+                responseData.setData(result);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
 
 
-        }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setErrorType(e.getMessage());
-            responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "get-all-by-user/{idUser}")
-    public ResponseEntity<?> getAllHomeByUser(@RequestParam("idUser") Long idUser){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getAllHomeByUser(@RequestParam("idUser") Long idUser) {
+        MyResponse responseData = new MyResponse();
         try {
-            List<DataResultResponse> result =  homeService.getHomeByIdUser(idUser);
-            if (result != null){
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                responseData.setContent(result);
-                responseData.setStatus(1);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
-            }else
-            {
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
+            List<DataResultResponse> result = homeService.getHomeByIdUser(idUser);
+            if (result != null) {
+                responseData.setData(result);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
-
-
-        }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setErrorType(e.toString());
-            responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "create-home")
-    public ResponseEntity<?> create(@RequestBody HomeRequest homeRequest, MultipartFile[] file){
-        ResponseData responseData = new ResponseData();
-        try{
+    public ResponseEntity<MyResponse> create(@RequestBody HomeRequest homeRequest, MultipartFile[] file) {
+        MyResponse responseData = new MyResponse();
+        try {
             if (homeRequest == null) {
-                responseData.setStatus(7);
-                responseData.setMessage(Constant.ErrorTypeCommon.INVALID_INPUT);
-                responseData.setErrorType(Constant.ErrorTypeCommon.INVALID_INPUT);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.INVALID_INPUT));
             }
 
-            boolean b = homeService.createHome(homeRequest,file);
+            boolean b = homeService.createHome(homeRequest, file);
 
-            if(b){
-                responseData.setStatus(1);
-                responseData.setContent(homeRequest);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                responseData.setErrorType(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(2);
-                responseData.setMessage("ERROR_PROCESS_DATA");
-                responseData.setErrorType(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            if (b) {
+                responseData.setData(homeRequest);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
-        }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setMessage(e.toString());
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping(value = "delete-home/{idHome}")
-    public ResponseEntity<?> delete(@RequestParam("idHome") Long idHome){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> delete(@RequestParam("idHome") Long idHome) {
+        MyResponse responseData = new MyResponse();
         try {
 
-            if (idHome == null){
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
+            if (idHome == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean delete = homeService.delete(idHome);
 
-            if (delete){
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                responseData.setStatus(1);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
-            }else
-            {
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<ResponseData>(responseData,HttpStatus.OK);
+            if (delete) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
 
 
-        }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setErrorType(e.toString());
-            responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
 

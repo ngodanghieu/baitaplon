@@ -7,6 +7,22 @@ public class Constant {
     public static final int EXPIRATION = 60 * 30;
 
 
+    public enum StatusCode {
+        OK(200000),
+        NOT_FOUND(400000);
+
+        private int value;
+
+        StatusCode(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
+    }
+
+
     public enum NotificationParameter {
         SOUND("default"),
         COLOR("#FFFF00");
@@ -192,6 +208,13 @@ public class Constant {
         public static final String DELETE_MANY = "Error when delete item";
         public static final String EXIST_ITEM = "EXIST_ITEM";
         public static final String Access_Denied = "Access_Denied";
+        public static final String CODE_FALSE = "CODE FALSE";
+        public static final String SENT_FALSE = "SENT FALSE";
+        public static final String PHONE_NOT_VALIDATE_OTP = "PHONE NOT VALIDATE OTP.";
+        public static final String USER_OR_PASS_FALSE_OR_USER_NOT_VALIDATE_OPT = "User or pass false or user not validate opt!";
+        public static final String HAVE_NOT_HOME = "HAVE NOT HOME!";
+        public static final String HAVE_NOT_USER = "HAVE NOT USER!";
+        public static final String HAVE_NOT_ORDER = "HAVE NOT ORDER!";
     }
 
     public static final class ErrorCodeUserApi {

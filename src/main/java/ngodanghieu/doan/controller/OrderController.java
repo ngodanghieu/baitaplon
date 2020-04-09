@@ -1,15 +1,15 @@
 package ngodanghieu.doan.controller;
 
 import ngodanghieu.doan.request.OrderRequest;
+import ngodanghieu.doan.response.MyResponse;
 import ngodanghieu.doan.response.OrderDeatailResponse;
 import ngodanghieu.doan.response.OrderResponse;
-import ngodanghieu.doan.response.ResponseData;
 import ngodanghieu.doan.service.HomeService;
 import ngodanghieu.doan.service.OrderService;
 import ngodanghieu.doan.service.UserService;
 import ngodanghieu.doan.util.Constant;
+import ngodanghieu.doan.util.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,276 +28,238 @@ public class OrderController {
     private UserService userService;
 
     @PostMapping(value = "create-Order")
-    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> createOrder(@RequestBody OrderRequest orderRequest) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (orderRequest == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (orderRequest == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean isCheckHome = homeService.checkHomeExit(orderRequest.getIdHome());
 
-            if (!isCheckHome){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT HOME");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (!isCheckHome) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_HOME));
             }
 
             boolean isCheckUser = userService.checkExistUserById(orderRequest.getIdUserl());
 
-            if (!isCheckUser){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT USER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (!isCheckUser) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_USER));
             }
             String save = orderService.save(orderRequest);
 
-            if (save != null){
-                responseData.setStatus(1);
-                responseData.setContent("{ \"ordercode\":"+save+"}");
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (save != null) {
+                responseData.setData("{ \"ordercode\":" + save + "}");
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
 
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "change-Status-Order")
-    public ResponseEntity<?> changeStatusOrder(String orderCode){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> changeStatusOrder(String orderCode) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (orderCode == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (orderCode == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean isCheckOrder = orderService.checkOrderByOrderCode(orderCode);
 
-            if (!isCheckOrder){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT ORDER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (!isCheckOrder) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_ORDER));
             }
 
             Boolean save = orderService.changeStatusOrder(orderCode);
 
-            if (save != null){
-                responseData.setStatus(1);
-                responseData.setContent(Constant.ErrorTypeCommon.OK);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (save) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping(value = "delete-Order")
-    public ResponseEntity<?> deleteOrder(String orderCode){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> deleteOrder(String orderCode) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (orderCode == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (orderCode == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean isCheckOrder = orderService.checkOrderByOrderCode(orderCode);
 
-            if (!isCheckOrder){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT ORDER");
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (!isCheckOrder) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_ORDER));
             }
 
             Boolean save = orderService.deleteOrder(orderCode);
 
-            if (save != null){
-                responseData.setStatus(1);
-                responseData.setContent(Constant.ErrorTypeCommon.OK);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (save) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "get-all-order-history-by-user")
-    public ResponseEntity<?> getDataByUser(Long idUser){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getDataByUser(Long idUser) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (idUser == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (idUser == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean isCheckUser = userService.checkExistUserById(idUser);
 
-            if (!isCheckUser){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT USER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (!isCheckUser) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_USER));
             }
 
             List<OrderResponse> data = orderService.getListOrderHistoryByIdUser(idUser);
 
-            if (data != null){
-                responseData.setStatus(1);
-                responseData.setContent(data);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (data != null) {
+                responseData.setData(data);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
             }
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "get-all-order-new-by-user")
-    public ResponseEntity<?> getDataOrderNewByUser(Long idUser){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getDataOrderNewByUser(Long idUser) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (idUser == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (idUser == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean isCheckUser = userService.checkExistUserById(idUser);
 
-            if (!isCheckUser){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT USER");
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (!isCheckUser) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_USER));
             }
 
             List<OrderResponse> data = orderService.getListOrderWaitingProcess(idUser);
 
-            if (data != null){
-                responseData.setStatus(1);
-                responseData.setContent(data);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (data != null) {
+                responseData.setData(data);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "get-all-order-history-by-user-owner")
-    public ResponseEntity<?> getDataOrderNewByUserOwuner(Long idUser){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getDataOrderNewByUserOwuner(Long idUser) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (idUser == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (idUser == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean isCheckUser = userService.checkExistUserById(idUser);
 
-            if (!isCheckUser){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT USER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (!isCheckUser) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_USER));
             }
 
             List<OrderResponse> data = orderService.getListOrderHistoryOwnner(idUser);
 
-            if (data != null){
-                responseData.setStatus(1);
-                responseData.setContent(data);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (data != null) {
+                responseData.setData(data);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = "get-all-order-detail-by-ordercode")
-    public ResponseEntity<?> getDataOrderDetailByOrderCode(String orderCode){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getDataOrderDetailByOrderCode(String orderCode) {
+        MyResponse responseData = new MyResponse();
         try {
-            if (orderCode == null){
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.REQUEST_IS_NULL);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
+            if (orderCode == null) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.REQUEST_IS_NULL));
             }
 
             boolean ischeckOrder = orderService.checkOrderByOrderCode(orderCode);
 
-            if (!ischeckOrder){
-                responseData.setStatus(3);
-                responseData.setMessage("HAVE NOT ORDER");
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (!ischeckOrder) {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.HAVE_NOT_ORDER));
             }
 
             OrderDeatailResponse data = orderService.getOrderDetailByOrderCode(orderCode);
 
-            if (data != null){
-                responseData.setStatus(1);
-                responseData.setContent(data);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<>(responseData, HttpStatus.OK);
-            }else {
-                responseData.setStatus(3);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+            if (data != null) {
+                responseData.setData(data);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
 
-        }catch (Exception e){
-            responseData.setMessage(e.toString());
-            responseData.setStatus(2);
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
     }
 }

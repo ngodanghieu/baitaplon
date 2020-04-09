@@ -1,12 +1,15 @@
 package ngodanghieu.doan.controller;
 
 import ngodanghieu.doan.response.DistrictResponse;
+import ngodanghieu.doan.response.MyResponse;
 import ngodanghieu.doan.response.ResponseData;
 import ngodanghieu.doan.service.DistrictService;
 import ngodanghieu.doan.util.Constant;
+import ngodanghieu.doan.util.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,48 +23,40 @@ public class DistrictController {
     private DistrictService districtService;
 
     @RequestMapping(value = "api/get-all-district", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllDistrict(){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getAllDistrict(){
+        MyResponse responseData = new MyResponse();
         try {
             List<DistrictResponse> districtResponseList = districtService.getAll();
-            if (districtResponseList != null && !districtResponseList.isEmpty()){
-                responseData.setContent(districtResponseList);
-                responseData.setStatus(1);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            if (!CollectionUtils.isEmpty(districtResponseList)){
+                responseData.setData(districtResponseList);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
             }else {
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
         }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-            responseData.setErrorType(e.toString());
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "api/get-all-district-by-city/{code}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllDistrictByCityCode(@RequestParam("code") String code){
-        ResponseData responseData = new ResponseData();
+    public ResponseEntity<MyResponse> getAllDistrictByCityCode(@RequestParam("code") String code){
+        MyResponse responseData = new MyResponse();
         try {
             List<DistrictResponse> districtResponseList = districtService.getAllByCityCode(code);
-            if (districtResponseList != null && !districtResponseList.isEmpty()){
-                responseData.setContent(districtResponseList);
-                responseData.setStatus(1);
-                responseData.setMessage(Constant.ErrorTypeCommon.OK);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.OK);
+            if (!CollectionUtils.isEmpty(districtResponseList)){
+                responseData.setData(districtResponseList);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
             }else {
-                responseData.setStatus(2);
-                responseData.setMessage(Constant.ErrorTypeCommon.NOT_FOUND_ITEM);
-                return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
         }catch (Exception e){
-            responseData.setStatus(2);
-            responseData.setMessage(Constant.ErrorTypeCommon.ERROR_PROCESS_DATA);
-            responseData.setErrorType(e.toString());
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
         }
-        return new ResponseEntity<ResponseData>(responseData, HttpStatus.BAD_REQUEST);
     }
 }
