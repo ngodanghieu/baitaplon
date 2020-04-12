@@ -16,14 +16,14 @@ import javax.persistence.Table;
 public class Ratings implements java.io.Serializable {
 
 	private Integer id;
-	private int stars;
-	private int userId;
-	private int homeId;
+	private float stars;
+	private Long userId;
+	private Long homeId;
 
 	public Ratings() {
 	}
 
-	public Ratings(int stars, int userId, int homeId) {
+	public Ratings(float stars, Long userId, Long homeId) {
 		this.stars = stars;
 		this.userId = userId;
 		this.homeId = homeId;
@@ -42,29 +42,29 @@ public class Ratings implements java.io.Serializable {
 	}
 
 	@Column(name = "stars", nullable = false)
-	public int getStars() {
+	public float getStars() {
 		return this.stars;
 	}
 
-	public void setStars(int stars) {
+	public void setStars(float stars) {
 		this.stars = stars;
 	}
 
 	@Column(name = "user_id", nullable = false)
-	public int getUserId() {
+	public Long getUserId() {
 		return this.userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
 	@Column(name = "home_id", nullable = false)
-	public int getHomeId() {
+	public Long getHomeId() {
 		return this.homeId;
 	}
 
-	public void setHomeId(int homeId) {
+	public void setHomeId(Long homeId) {
 		this.homeId = homeId;
 	}
 
