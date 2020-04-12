@@ -2,6 +2,8 @@ package ngodanghieu.doan.repository;
 
 import ngodanghieu.doan.entities.Home;
 import ngodanghieu.doan.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,8 +15,16 @@ public interface IHomeRepository extends JpaRepository<Home,Long> {
     @Query(nativeQuery = true, value = "SELECT home.* FROM home,status,adress_home " +
             "WHERE status.status_id =home.status " +
             "AND home.home_id = adress_home.home_id " +
-            "AND status.status_code = 'active'")
-    List<Home> getAllHome();
+            "AND status.status_code = 'active' ")
+    List<Home> getAllHome(Long limit);
+
+    @Query(nativeQuery = true, value = "SELECT home.* FROM home,status,adress_home " +
+            "WHERE status.status_id =home.status " +
+            "AND home.home_id = adress_home.home_id " +
+            "AND status.status_code = 'active' ")
+    Page<Home> getAllHomePage(Pageable pageable);
+
+
     Home findByHomeId(Long idHome);
 
     @Query(nativeQuery = true, value = "SELECT * FROM home WHERE home_id = :id")
@@ -39,6 +49,8 @@ public interface IHomeRepository extends JpaRepository<Home,Long> {
     @Query(nativeQuery = true, value = "SELECT home.price FROM home \n" +
             "            INNER JOIN acreage_home ON acreage_home.home_id = home.home_id  WHERE acreage_home.acreage_id = :idacreage")
     List<String> getAllPrice(@Param("idacreage") Long idAcreage);
+
+    List<Home> findAllByHomeIdIn(List<Long> homeId);
 
 
 }

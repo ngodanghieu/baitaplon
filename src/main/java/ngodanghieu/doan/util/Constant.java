@@ -215,6 +215,7 @@ public class Constant {
         public static final String HAVE_NOT_HOME = "HAVE NOT HOME!";
         public static final String HAVE_NOT_USER = "HAVE NOT USER!";
         public static final String HAVE_NOT_ORDER = "HAVE NOT ORDER!";
+        public static final String DUPLICATE = "Bản gi đã được xử lý trước đó.";
     }
 
     public static final class ErrorCodeUserApi {

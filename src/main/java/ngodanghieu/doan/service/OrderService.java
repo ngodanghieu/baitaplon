@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -48,7 +50,7 @@ public class OrderService {
     public String save(OrderRequest orderRequest){
         Home home = iHomeRepository.findByHomeId(orderRequest.getIdHome());
         User user  = iUserRepository.findByUserId(orderRequest.getIdUserl());
-
+        List<UserHome> userHomes = (List<UserHome>) home.getUserHomes().stream().collect(Collectors.toList());
         try {
             if (home != null && user != null){
                 Order orderOne = mapModelToEntities(orderRequest,home,user);
@@ -58,10 +60,17 @@ public class OrderService {
                     iOrderInfoRepository.save(orderInfo);
                 }
                 MessageFCMModel messageFCMModel = new MessageFCMModel();
-                messageFCMModel.setTitle("NEW ORDER");
-                messageFCMModel.setMessage("mot order moi can acsess");
-                List<UserFCMModel> userFCMModels = fcmService.getListTokenByUserId(orderRequest.getIdUserl());
+                messageFCMModel.setTitle("Bạn có một order mới!");
+                messageFCMModel.setMessage("Một order mới cần phê duyệt.");
+
+                MessageFCMModel messageFCMModelUser = new MessageFCMModel();
+                messageFCMModelUser.setTitle("Bạn vừa thuê phòng");
+                messageFCMModelUser.setMessage("Yêu cầu đang được chờ duyệt.");
+
+                List<UserFCMModel> userFCMModels = fcmService.getListTokenByUserId(userHomes.get(0).getUser().getUserId());
+                List<UserFCMModel> userFCMModelsUser  = fcmService.getListTokenByUserId(user.getUserId());
                 fcmService.pushNotificationToUsersWithoutTopic(order.getOrderCode(),messageFCMModel,userFCMModels);
+                fcmService.pushNotificationToUsersWithoutTopic(order.getOrderCode(),messageFCMModelUser,userFCMModelsUser);
                 return order.getOrderCode();
             }else {
                 return null;
@@ -125,7 +134,7 @@ public class OrderService {
             });
             return result;
         }else {
-            return null;
+            return new ArrayList<>();
         }
 
     }

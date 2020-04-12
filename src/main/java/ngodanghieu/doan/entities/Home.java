@@ -34,6 +34,8 @@ public class Home implements java.io.Serializable {
 	public Home() {
 	}
 
+
+
 	public Home(Status status, String content, String imageUrl, double price, Date createdOn, String createdBy,
 			Date modifiedOn, String modifiedBy) {
 		this.status = status;

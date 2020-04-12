@@ -14,4 +14,5 @@ public class HomeRequest {
     private String imageUrl;
     private double price;
     List<HomeWorkTimeModel> homeWorkTimeModels;
+    private List<String> imageUrls;
 }

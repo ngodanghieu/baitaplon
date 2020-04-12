@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.management.MemoryManagerMXBean;
 import java.util.List;
 
 @RestController
@@ -26,6 +27,8 @@ public class OrderController {
 
     @Autowired
     private UserService userService;
+
+
 
     @PostMapping(value = "create-Order")
     public ResponseEntity<MyResponse> createOrder(@RequestBody OrderRequest orderRequest) {
@@ -67,7 +70,7 @@ public class OrderController {
         }
     }
 
-    @PostMapping(value = "change-Status-Order")
+    @PostMapping(value = "change-status-order")
     public ResponseEntity<MyResponse> changeStatusOrder(String orderCode) {
         MyResponse responseData = new MyResponse();
         try {
@@ -256,6 +259,8 @@ public class OrderController {
                 return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
                         Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
+
+
 
         } catch (Exception e) {
             return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,

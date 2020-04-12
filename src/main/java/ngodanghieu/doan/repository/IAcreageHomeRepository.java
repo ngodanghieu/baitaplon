@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface IAcreageHomeRepository extends JpaRepository<AcreageHome,Long> {
     @Query(nativeQuery = true,
         value = "SELECT * FROM acreage_home WHERE home_id = :idhome "

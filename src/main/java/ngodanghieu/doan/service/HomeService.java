@@ -11,12 +11,15 @@ import ngodanghieu.doan.response.DataResultResponse;
 import ngodanghieu.doan.response.HomeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -51,7 +54,10 @@ public class HomeService {
     private IOrderRepository iOrderRepository;
 
     @Autowired
-    private IMedia media;
+    private IMedia imedia;
+
+    @Autowired
+    private IFavoriteRepository iFavoriteRepository;
 
     public Boolean checkHomeExit(Long id){
         Optional<Home> optionalHome = iHomeRepository.findById(id);
@@ -59,8 +65,29 @@ public class HomeService {
         return home != null;
     }
 
-    public List<HomeResponse> getAllHome(){
-        List<Home> homeResponseList = iHomeRepository.getAllHome();
+    public List<HomeResponse> getAllHome(Long limit,Long userId){
+
+        Page<Home> data = iHomeRepository.getAllHomePage(PageRequest.of(Math.toIntExact(limit),10));
+
+        List<Home> homeResponseList = data.stream().map(home -> {
+            Home result = new Home();
+            result.setHomeId(home.getHomeId());
+            result.setStatus(home.getStatus());
+            result.setContent(home.getContent());
+            result.setPrice(home.getPrice());
+            result.setImageUrl(home.getImageUrl());
+            result.setCreatedBy(home.getCreatedBy());
+            result.setCreatedOn(home.getCreatedOn());
+            result.setAcreageHomes(home.getAcreageHomes());
+            result.setAdressHomes(home.getAdressHomes());
+            result.setHomeWorktimes(home.getHomeWorktimes());
+            result.setModifiedBy(home.getModifiedBy());
+            result.setUserHomes(home.getUserHomes());
+            result.setModifiedOn(home.getModifiedOn());
+            result.setOrders(home.getOrders());
+            result.setOrderInfos(home.getOrderInfos());
+            return result;
+        }).collect(Collectors.toList());
         List<HomeResponse> result = new LinkedList<>();
         if (homeResponseList != null && !homeResponseList.isEmpty()){
             homeResponseList.forEach(x ->{
@@ -69,6 +96,16 @@ public class HomeService {
                 }
 
             });
+            List<Favorite> favoriteList = iFavoriteRepository.findAllByUserId(userId);
+            if (!CollectionUtils.isEmpty(favoriteList)){
+                result.forEach( item ->{
+                    favoriteList.forEach( f -> {
+                        if (item.getHomeId() == f.getHomeId()){
+                            item.setIsMyFavorite(1);
+                        }
+                    });
+                });
+            }
             return result;
         }else {
             return null;
@@ -104,7 +141,7 @@ public class HomeService {
 
     public List<HomeResponse> getDataSearch(SearchRequset searchRequset){
         List<Home> homeResponseList = (searchRequset.getAdress() == null && searchRequset.getCodeCity() == null && searchRequset.getCodeDistrit() == null) ?
-                iHomeRepository.getAllHome() : iHomeRepository.getDataSearch(
+                iHomeRepository.getAllHome(100L) : iHomeRepository.getDataSearch(
                 searchRequset.getCodeCity() == null ? "''" : searchRequset.getCodeCity(),
                 searchRequset.getCodeDistrit() == null ? "''" : searchRequset.getCodeDistrit(),
                 searchRequset.getAdress() == null ? "''" : searchRequset.getAdress());
@@ -120,10 +157,10 @@ public class HomeService {
     }
 
     @Transactional
-    public Boolean createHome(HomeRequest homeRequest, MultipartFile[] fileData) throws Exception {
+    public Boolean createHome(HomeRequest homeRequest) throws Exception {
         Home home = iHomeRepository.findByHomeId(homeRequest.getId() == null ? 0 : homeRequest.getId());
         if (home != null){
-             Home save =  mappingModelToEntityHome(home,homeRequest,fileData);
+             Home save =  mappingModelToEntityHome(home,homeRequest);
              save.setStatus(iStatusRepository.findByStatusCode("active"));
              Home home1 = iHomeRepository.save(save);
              if (homeRequest.getHomeWorkTimeModels() != null && !homeRequest.getHomeWorkTimeModels().isEmpty()){
@@ -164,7 +201,7 @@ public class HomeService {
             });
             return result;
         }else {
-            return null;
+            return new ArrayList<>();
         }
 
     }
@@ -182,7 +219,7 @@ public class HomeService {
         StringBuilder acreageString = new StringBuilder();
         acreageString.append(acreage.getTotalArea())
                 .append("(").append(acreage.getWidth()).append("x").append(acreage.getHeight()).append(")");
-        return new HomeResponse(home.getHomeId(),title,home.getContent(),home.getImageUrl(),acreageString.toString(),home.getPrice(),home.getCreatedOn(),home.getCreatedBy(),"");
+        return new HomeResponse(home.getHomeId(),title,home.getContent(),home.getImageUrl(),acreageString.toString(),home.getPrice(),home.getCreatedOn(),home.getCreatedBy(),"",0,0f);
     }
 
     private String getTitleHome(Long id){
@@ -192,34 +229,36 @@ public class HomeService {
         return title.toString();
     }
 
+
+
     private DataResultResponse mapEntityToDataResultResponse(Home home, List<String> priceList){
         String title = getTitleHome(home.getHomeId());
         return new DataResultResponse(home.getHomeId(),title,priceList);
     }
 
-    private Home mappingModelToEntityHome(Home home, HomeRequest homeRequest, MultipartFile[] fileData) throws Exception {
+    private Home mappingModelToEntityHome(Home home, HomeRequest homeRequest) throws Exception {
         home.setContent(homeRequest.getContent());
         home.setPrice(homeRequest.getPrice());
-        String imageUrl = getImgUrlContent(fileData[0]);
-        home.setImageUrl(imageUrl);
-        saveMedia(fileData,home);
+        home.setImageUrl(homeRequest.getImageUrls().get(0));
+        saveMedia(home,homeRequest.getImageUrls());
         return home;
     }
 
-    @Async("threadCallService")
-    void saveMedia(MultipartFile[] fileData,Home home) throws Exception {
-        List<Media> list = new ArrayList<>();
-        if (fileData != null && fileData.length > 1){
-            for (MultipartFile multipartFile : fileData){
+    @Transactional
+    void saveMedia(Home home,List<String> list) throws Exception {
+        List<Media> result = new ArrayList<>();
+        if (CollectionUtils.isEmpty(list)){
+            for (String item: list){
                 Media media = new Media();
                 media.setHomeId(home.getHomeId());
                 media.setType("IMAGE");
 //                media.setUserId();
-                media.setUrl(getImgUrlContent(multipartFile));
-                list.add(media);
+                media.setUrl(item);
+                result.add(media);
+                imedia.save(media);
             }
         }
-        media.saveAll(list);
+//        imedia.saveAll(result);
     }
 
     private HomeWorktime mapModelToEntitiesHomeWorkTime(HomeWorkTimeModel homeWorkTimeModel, Home home){
@@ -256,5 +295,15 @@ public class HomeService {
         String  response2 = restTemplate.postForObject(serverUrl, requestEntity, String.class);
         ResponImage image = new Gson().fromJson(response2,ResponImage.class);
         return image.getData().getLink();
+    }
+
+    public List<HomeResponse> getListHomeByListHomeId(List<Long> homeIds){
+        List<Home> data = iHomeRepository.findAllByHomeIdIn(homeIds);
+        if (!CollectionUtils.isEmpty(data)){
+            List<HomeResponse> result = data.stream().map(this::mappingEntityToResponse).collect(Collectors.toList());
+            return result;
+        }else {
+            return new ArrayList<>();
+        }
     }
 }

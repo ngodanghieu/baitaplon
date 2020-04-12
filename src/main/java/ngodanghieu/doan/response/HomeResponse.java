@@ -19,4 +19,7 @@ public class HomeResponse {
     private Date createdOn;
     private String createdBy;
     private String address;
+    int isMyFavorite;
+    float start;
+
 }

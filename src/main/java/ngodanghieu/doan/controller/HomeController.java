@@ -34,12 +34,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.lang.management.MemoryManagerMXBean;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -60,18 +63,18 @@ public class HomeController {
     private HomeService homeService;
 
     @GetMapping(value = "get-all-home")
-    public ResponseEntity<MyResponse> getAllHome() {
+    public ResponseEntity<MyResponse> getAllHome(@RequestParam("limit") Long limit) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userPhone = (String) auth.getPrincipal();
+        String userId = (String) auth.getPrincipal();
         MyResponse responseData = new MyResponse();
         try {
-            List<HomeResponse> result = homeService.getAllHome();
+            List<HomeResponse> result = homeService.getAllHome(limit,Long.valueOf(userId));
             if (!CollectionUtils.isEmpty(result)) {
                 responseData.setData(result);
                 return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
                         Constant.ErrorTypeCommon.OK));
             } else {
-                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
                         Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
         } catch (Exception e) {
@@ -106,13 +109,13 @@ public class HomeController {
         MyResponse responseData = new MyResponse();
         try {
             List<DataResultResponse> result = homeService.getHomeByIdUser(idUser);
-            if (result != null) {
+            if (!CollectionUtils.isEmpty(result)) {
                 responseData.setData(result);
                 return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
-                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
+                        Constant.ErrorTypeCommon.OK));
             } else {
                 return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
-                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
+                        Constant.ErrorTypeCommon.NOT_FOUND_ITEM));
             }
         } catch (Exception e) {
             return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
@@ -121,7 +124,7 @@ public class HomeController {
     }
 
     @PostMapping(value = "create-home")
-    public ResponseEntity<MyResponse> create(@RequestBody HomeRequest homeRequest, MultipartFile[] file) {
+    public ResponseEntity<MyResponse> create(@RequestBody HomeRequest homeRequest) {
         MyResponse responseData = new MyResponse();
         try {
             if (homeRequest == null) {
@@ -129,7 +132,7 @@ public class HomeController {
                         Constant.ErrorTypeCommon.INVALID_INPUT));
             }
 
-            boolean b = homeService.createHome(homeRequest, file);
+            boolean b = homeService.createHome(homeRequest);
 
             if (b) {
                 responseData.setData(homeRequest);
@@ -158,6 +161,7 @@ public class HomeController {
             boolean delete = homeService.delete(idHome);
 
             if (delete) {
+                responseData.setData(true);
                 return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
                         Constant.ErrorTypeCommon.OK));
             } else {
@@ -166,6 +170,28 @@ public class HomeController {
             }
 
 
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                    Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
+        }
+    }
+
+
+    @PostMapping(value = "import-file")
+    public ResponseEntity<MyResponse> importFIle( MultipartFile file) {
+        MyResponse responseData = new MyResponse();
+        try {
+
+            String content = homeService.getImgUrlContent( file);
+
+            if (!StringUtils.isEmpty(content)) {
+                responseData.setData(content);
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, Constant.StatusCode.OK.getValue(),
+                        Constant.ErrorTypeCommon.OK));
+            } else {
+                return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
+                        Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));
+            }
         } catch (Exception e) {
             return ResponseEntity.ok(ResponseUtils.responseSuccess(responseData, 2,
                     Constant.ErrorTypeCommon.ERROR_PROCESS_DATA));

@@ -27,11 +27,31 @@ public class FCMInitializer {
         try {
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(new ClassPathResource(firebaseConfigPath).getInputStream()))
-                    .setDatabaseUrl("https://doan-7ad49.firebaseio.com").build();
+                    .setDatabaseUrl("https://doantotnghiep-d53c3.firebaseio.com").build();
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
                 logger.info("Firebase application has been initialized");
             }
+//
+//            FileInputStream serviceAccount =
+//                    new FileInputStream(firebaseConfigPath);
+//
+//            FirebaseOptions options = new FirebaseOptions.Builder()
+//                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                    .setDatabaseUrl("https://doantotnghiep-d53c3.firebaseio.com")
+//                    .build();
+//
+//            FirebaseApp.initializeApp(options);
+
+//
+//                FirebaseOptions options = new FirebaseOptions.Builder()
+//                        .setCredentials(GoogleCredentials.fromStream(new ClassPathResource(firebaseConfigPath).getInputStream()))
+//                        .setDatabaseUrl("https://doantotnghiep-d53c3.firebaseio.com")
+//                        .build();
+//                if(FirebaseApp.getApps().isEmpty()) { //<--- check with this line
+//                    FirebaseApp.initializeApp(options);
+//                }
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

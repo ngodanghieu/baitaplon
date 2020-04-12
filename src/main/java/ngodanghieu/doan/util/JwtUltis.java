@@ -30,7 +30,7 @@ public class JwtUltis {
     }
 
     public static String generateToken(User user, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(user.getUserPhone());
+        Claims claims = Jwts.claims().setSubject(user.getUserId().toString());
         claims.put("roles", roles);
         claims.put("userid",user.getUserId());
         Date now = new Date();
